@@ -6,7 +6,10 @@ import test from "node:test";
 // cspell:ignore dbname
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
 const readWorkflow = (name) =>
-  readFileSync(path.join(repositoryRoot, ".github", "workflows", name), "utf8");
+  readFileSync(
+    path.join(repositoryRoot, ".github", "workflows-disabled", name),
+    "utf8",
+  );
 const backup = readWorkflow("backup-production-db.yml");
 const scheduler = readWorkflow("backup-production-db-scheduler.yml");
 

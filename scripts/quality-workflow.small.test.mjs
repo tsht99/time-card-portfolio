@@ -5,7 +5,7 @@ import test from "node:test";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
 const workflow = readFileSync(
-  path.join(repositoryRoot, ".github", "workflows", "quality.yml"),
+  path.join(repositoryRoot, ".github", "workflows-disabled", "quality.yml"),
   "utf8",
 );
 
