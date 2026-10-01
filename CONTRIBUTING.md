@@ -2,6 +2,12 @@
 
 本リポジトリを変更するときの基本的な開発ルールをまとめます。
 
+## 公開スナップショットとしての扱い
+
+本リポジトリは、実運用している非公開の TimeCard リポジトリから切り出した転職活動向けの公開スナップショットです。第二の実運用リポジトリとして継続同期することは前提としていません。
+
+公開版では `main` を基準 branch とし、ポートフォリオ上の説明・検証に必要な変更だけを行います。実運用向け GitHub Actions は誤実行防止のため `.github/workflows-disabled` に移動しています。
+
 ## 開発環境
 
 ローカルで使用する Node.js の exact version は `mise.toml`、pnpm version はルート `package.json` の `packageManager` を Source of Truth とします。
@@ -22,7 +28,7 @@ pnpm dev:web
 
 ## Branch
 
-通常の変更は `develop` を基準に `feature/` branch で行います。
+通常の変更は `main` を基準に `feature/` branch で行います。
 
 Issue に対応する場合は次の形式を使用します。
 
@@ -36,15 +42,9 @@ Issue がない場合は次の形式を使用します。
 feature/<slug>
 ```
 
-Production release は、`develop` から `release/<version>` branch を作成して行います。release branch ではルート `package.json` の `version` を対象の SemVer へ更新し、必要な release 固有の調整だけを行います。
-
-`hotfix/` は、`main` の Production に対する緊急修正として通常の `develop` 経由では間に合わない場合だけ使用します。
-
 ## Merge
 
-通常の feature branch を `develop` に取り込むときは、branch の最終状態を 1 つの squash commit として取り込み、merge commit は作成しません。
-
-release branch はこの feature branch の squash ルールの対象外とします。対象 release branch を `main` に merge して Production release とし、同じ release branch を `develop` にも merge して version を含む release 状態を同期します。release branch の取り込みでは、どの release を取り込んだかを履歴上で識別できる merge commit を使用します。
+feature branch は、branch の最終状態を 1 つの squash commit として `main` に取り込み、merge commit は作成しません。
 
 remote に push 済みの作業 branch の履歴は、rebase / squash / amend で書き換えません。
 
@@ -68,7 +68,9 @@ pnpm test:e2e
 
 ## Database migration
 
-DB schema を変更する場合は、先に schema 定義を変更し、意味のある migration 名を指定して正規の生成コマンドを実行します。
+公開用スナップショットでは、実運用リポジトリの migration 履歴を [`0000_initial_schema.sql`](./packages/db/migrations/0000_initial_schema.sql) に baseline 化しています。
+
+この公開リポジトリ上で DB schema を変更する場合も、先に schema 定義を変更し、意味のある migration 名を指定して正規の生成コマンドを実行します。
 
 ```sh
 pnpm --filter @repo/db generate -- <migration-name>
@@ -84,7 +86,7 @@ migration 名は小文字英数字で始め、小文字英数字・`_`・`-` の
 
 Codex の repository-local `PreToolUse` hook も migration ファイルの内容変更を制限します。hook を無効化・回避せず、変更は schema 定義と正規の生成コマンドで行います。
 
-migration の適用、Preview / Production の接続先、deployment 時の扱いは [環境構築・デプロイ手順書](./docs/環境構築・デプロイ手順書.md) を参照してください。
+migration の適用や実運用側での deployment の考え方は [環境構築・デプロイ手順書](./docs/環境構築・デプロイ手順書.md) を参照してください。
 
 ## Documentation
 
