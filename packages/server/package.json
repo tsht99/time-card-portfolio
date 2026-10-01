@@ -1,0 +1,41 @@
+{
+  "name": "@repo/server",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./env": {
+      "types": "./src/env.ts",
+      "development": "./src/env.ts",
+      "default": "./dist/env.js"
+    }
+  },
+  "scripts": {
+    "test": "node --conditions=development --import ./test-env.mjs --import tsx --test \"src/**/*.test.ts\"",
+    "test:small": "node --conditions=development --import ./test-env.mjs --import tsx --test \"src/**/*.small.test.ts\"",
+    "test:medium": "node --conditions=development --import ./test-env.mjs --import tsx --test --test-global-setup ../../packages/db/src/test/medium-postgres-global-setup.ts --test-concurrency=1 \"src/**/*.medium.test.ts\"",
+    "env:check": "node --env-file-if-exists=.env --import tsx --input-type=module -e \"import('./src/env.ts').then(({ validateServerRuntimeEnvironment }) => validateServerRuntimeEnvironment())\"",
+    "admin:bootstrap:production": "node --conditions=development --import tsx ./src/cli/production-admin-bootstrap.ts",
+    "projection:rebuild:local": "node --conditions=development --env-file-if-exists=../../.env.local --import tsx ./src/cli/rebuild-attendance-current-state-projection.ts local",
+    "projection:rebuild:preview": "node --conditions=development --import tsx ./src/cli/rebuild-attendance-current-state-projection.ts preview",
+    "projection:rebuild:production": "node --conditions=development --import tsx ./src/cli/rebuild-attendance-current-state-projection.ts production",
+    "build": "rimraf dist && tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/attendance": "workspace:*",
+    "@repo/db": "workspace:*",
+    "@repo/users": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@repo/payroll": "workspace:*",
+    "@repo/platform": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

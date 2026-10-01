@@ -1,0 +1,41 @@
+{
+  "name": "@repo/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "generate": "node scripts/generate-migration.mjs",
+    "migrate": "node --env-file-if-exists=.env.local --conditions=development --import tsx src/migrate.ts local",
+    "migrate:deploy": "node --conditions=development --import tsx src/migrate.ts deploy",
+    "test": "node --import tsx --test src/**/*.test.ts",
+    "test:small": "node --import tsx --test src/**/*.small.test.ts",
+    "test:medium": "node --import tsx --test --test-concurrency=1 src/**/*.medium.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/platform": "workspace:*",
+    "@repo/users": "workspace:*",
+    "@neondatabase/serverless": "1.1.0",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:",
+    "@repo/attendance": "workspace:*",
+    "@repo/payroll": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "dotenv": "18.0.4",
+    "drizzle-kit": "0.31.11",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

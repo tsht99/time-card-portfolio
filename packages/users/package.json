@@ -1,0 +1,43 @@
+{
+  "name": "@repo/users",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./infrastructure": {
+      "types": "./src/infrastructure/index.ts",
+      "development": "./src/infrastructure/index.ts",
+      "default": "./dist/infrastructure/index.js"
+    },
+    "./schema": {
+      "types": "./src/schema/index.ts",
+      "development": "./src/schema/index.ts",
+      "default": "./dist/schema/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
+    "test:small": "node --import tsx --test \"src/**/*.small.test.ts\"",
+    "test:medium": "node --conditions=development --import tsx --test --test-global-setup ./src/test/medium-postgres-global-setup.ts --test-concurrency=1 \"src/**/*.medium.test.ts\""
+  },
+  "dependencies": {
+    "@repo/platform": "workspace:*",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "catalog:",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "msw": "3.0.0",
+    "pg": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

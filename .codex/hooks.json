@@ -1,0 +1,18 @@
+{
+  "description": "Repository guardrails.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/migration-guard.mjs\"",
+            "timeout": 5,
+            "statusMessage": "Checking migration access policy"
+          }
+        ]
+      }
+    ]
+  }
+}

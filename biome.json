@@ -1,0 +1,1225 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/.next",
+      "!**/dist",
+      "!**/.turbo",
+      "!pnpm-lock.yaml",
+      "!**/*.md"
+    ]
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "html": {
+    "parser": {
+      "vue": true
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "includes": ["**"],
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        "noImportCycles": "error"
+      }
+    },
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "sortBareImports": false
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/public/*.svg"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/payroll/**",
+        "!packages/payroll/src/schema/hourly-wage-rates.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "Domain は契約を定義する層に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/db": {
+                    "message": "Domain は永続化の詳細に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/platform": {
+                    "message": "Domain は共通技術基盤に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/server": {
+                    "message": "Domain はアプリケーション実行基盤に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/ui": {
+                    "message": "Domain は表示層に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/users/infrastructure": {
+                    "message": "Payroll は Users Infrastructure を直接参照しません。"
+                  },
+                  "@repo/users/schema": {
+                    "message": "Payroll は Users schema を直接参照しません。"
+                  },
+                  "@repo/payroll/infrastructure": {
+                    "message": "Domain は Infrastructure に依存しません。"
+                  },
+                  "@repo/payroll/delivery": {
+                    "message": "Domain は Delivery に依存しません。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/db/**",
+                      "@repo/platform/**",
+                      "@repo/server/**",
+                      "@repo/ui/**",
+                      "**/platform/**",
+                      "@repo/users/{application,domain,infrastructure,delivery}/**",
+                      "@repo/users",
+                      "**/users/src/**"
+                    ],
+                    "message": "Domain は他の workspace package の subpath に依存せず、ドメインモデルを独立して保ちます。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/attendance/src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/db": {
+                    "message": "Attendance Domain は DB に依存しません。"
+                  },
+                  "@repo/platform": {
+                    "message": "Attendance Domain は Platform に依存しません。"
+                  },
+                  "@repo/server": {
+                    "message": "Attendance Domain は上位層に依存しません。"
+                  },
+                  "next": {
+                    "message": "Attendance Domain は Next.js に依存しません。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/attendance/application/**",
+                      "@repo/attendance/infrastructure/**",
+                      "@repo/attendance/schema",
+                      "@repo/users/**",
+                      "@repo/db/**",
+                      "@repo/platform/**",
+                      "next/**"
+                    ],
+                    "message": "Attendance Domain は内側の Domain に依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/platform/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "Platform は業務知識と上位層に依存しません。"
+                  },
+                  "@repo/db": {
+                    "message": "Platform は業務 schema を所有する DB package に依存しません。"
+                  },
+                  "@repo/server": {
+                    "message": "Platform は Server のアプリケーション実行基盤に依存しません。"
+                  },
+                  "@repo/ui": {
+                    "message": "Platform は表示層に依存しません。"
+                  },
+                  "@repo/users": {
+                    "message": "Platform は業務モジュールに依存しません。"
+                  },
+                  "@repo/attendance": {
+                    "message": "Platform は業務モジュールに依存しません。"
+                  },
+                  "@repo/payroll": {
+                    "message": "Platform は業務モジュールに依存しません。"
+                  },
+                  "web": {
+                    "message": "Platform は Next.js Delivery Adapter に依存しません。"
+                  },
+                  "next": {
+                    "message": "Platform は Next.js Delivery Adapter に依存しません。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/db/**",
+                      "@repo/payroll/**",
+                      "@repo/server/**",
+                      "@repo/ui/**",
+                      "@repo/users/**",
+                      "@repo/attendance/**",
+                      "@repo/payroll/**",
+                      "**/{contracts,db,domain,line,server,ui,users,attendance,payroll}/**",
+                      "**/web/**",
+                      "web/**",
+                      "next/**"
+                    ],
+                    "message": "Platform は業務 package と上位層の subpath に依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/db/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "DB は契約層に依存せず、永続化スキーマとデータアクセスを担います。"
+                  },
+                  "@repo/payroll": {
+                    "message": "DB はドメイン層に依存せず、永続化スキーマとデータアクセスを担います。"
+                  },
+                  "@repo/server": {
+                    "message": "DB はアプリケーション実行基盤に依存せず、永続化スキーマとデータアクセスを担います。"
+                  },
+                  "@repo/ui": {
+                    "message": "DB は表示層に依存せず、永続化スキーマとデータアクセスを担います。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/payroll/**",
+                      "@repo/server/**",
+                      "@repo/ui/**"
+                    ],
+                    "message": "DB は他の workspace package の subpath に依存せず、永続化スキーマとデータアクセスを担います。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/ui/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "UI package は契約層に依存せず、再利用可能な表示部品を担います。"
+                  },
+                  "@repo/db": {
+                    "message": "UI package は永続化層に依存せず、再利用可能な表示部品を担います。"
+                  },
+                  "@repo/payroll": {
+                    "message": "UI package はドメイン層に依存せず、再利用可能な表示部品を担います。"
+                  },
+                  "@repo/server": {
+                    "message": "UI package はアプリケーション実行基盤に依存せず、再利用可能な表示部品を担います。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/db/**",
+                      "@repo/payroll/**",
+                      "@repo/server/**",
+                      "@repo/users/**",
+                      "**/users/src/**"
+                    ],
+                    "message": "UI package は他の workspace package の subpath に依存せず、再利用可能な表示部品を担います。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/contracts/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/db": {
+                    "message": "Contracts は永続化層に依存せず、共有契約を定義します。"
+                  },
+                  "@repo/server": {
+                    "message": "Contracts はアプリケーション実行基盤に依存せず、共有契約を定義します。"
+                  },
+                  "@repo/ui": {
+                    "message": "Contracts は表示層に依存せず、共有契約を定義します。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/db/**",
+                      "@repo/server/**",
+                      "@repo/ui/**",
+                      "@repo/attendance/**",
+                      "@repo/payroll/**",
+                      "@repo/users/**",
+                      "**/users/src/**",
+                      "**/attendance/src/**",
+                      "**/payroll/src/**"
+                    ],
+                    "message": "Contracts は他の workspace package の subpath に依存せず、共有契約を定義します。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/server/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/ui": {
+                    "message": "Server は表示層に依存せず、アプリケーション実行基盤を担います。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": ["@repo/ui/**"],
+                    "message": "Server は表示層の subpath に依存せず、アプリケーション実行基盤を担います。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/users/src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": "Domain は共有 Web contract に依存しません。",
+                  "@repo/db": "Domain は DB に依存しません。",
+                  "@repo/users/schema": "Domain は Users schema に依存しません。",
+                  "@repo/platform": "Domain は Platform に依存しません。",
+                  "@repo/server": "Domain は Server のアプリケーション実行基盤に依存しません。",
+                  "@repo/ui": "Domain は UI に依存しません。",
+                  "next": "Domain は Next.js に依存しません。",
+                  "drizzle-orm": "Domain は ORM に依存しません。",
+                  "pg": "Domain は PostgreSQL driver に依存しません。",
+                  "@neondatabase/serverless": "Domain は PostgreSQL driver に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,db,line,platform,server,ui}/**",
+                      "@repo/{users,attendance,payroll}",
+                      "@repo/{users,attendance,payroll}/{application,infrastructure,delivery}/**",
+                      "**/{contracts,db,line,platform,server,ui}/**",
+                      "**/application/**",
+                      "**/infrastructure/**",
+                      "**/schema",
+                      "**/schema/**",
+                      "**/delivery/**",
+                      "next/**",
+                      "drizzle-orm/**"
+                    ],
+                    "message": "Domain は外側の層と技術基盤に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/attendance/**",
+                      "**/attendance/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/users/src/application/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/users": "Users 内部では self package root を経由せず、内部の実装を直接参照します。",
+                  "@repo/db": "Application は具体的な DB 実装に依存しません。",
+                  "@repo/users/schema": "Application は Users schema に依存しません。",
+                  "@repo/platform": "Application は Platform に依存しません。",
+                  "@repo/server": "Application は Server のアプリケーション実行基盤に依存しません。",
+                  "@repo/ui": "Application は UI に依存しません。",
+                  "next": "Application は Next.js に依存しません。",
+                  "drizzle-orm": "Application は ORM に依存しません。",
+                  "pg": "Application は PostgreSQL driver に依存しません。",
+                  "@neondatabase/serverless": "Application は PostgreSQL driver に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,db,line,platform,server,ui}/**",
+                      "@repo/{users,attendance,payroll}/{infrastructure,delivery}/**",
+                      "**/{db,line,platform,server,ui}/**",
+                      "**/infrastructure/**",
+                      "**/schema",
+                      "**/schema/**",
+                      "**/delivery/**",
+                      "next/**",
+                      "drizzle-orm/**"
+                    ],
+                    "message": "Application は具体的な Infrastructure、Platform、Delivery に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/attendance/**",
+                      "**/attendance/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/users/src/infrastructure/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/users": "Users 内部では self package root を経由せず、内部の実装を直接参照します。",
+                  "@repo/db": "Users Infrastructure は DB composition package に逆依存しません。",
+                  "@repo/ui": "Infrastructure は Delivery に依存しません。",
+                  "next": "Infrastructure は Next.js Delivery Adapter に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/db/**",
+                      "**/db/**",
+                      "@repo/{users,attendance,payroll}/delivery/**",
+                      "**/delivery/**",
+                      "next/**"
+                    ],
+                    "message": "Infrastructure は Delivery に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/attendance/**",
+                      "**/attendance/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/users/src/delivery/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/users": "Users 内部では self package root を経由せず、内部の実装を直接参照します。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/attendance/**",
+                      "**/attendance/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/attendance/src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": "Domain は共有 Web contract に依存しません。",
+                  "@repo/db": "Domain は DB に依存しません。",
+                  "@repo/platform": "Domain は Platform に依存しません。",
+                  "@repo/server": "Domain は Server のアプリケーション実行基盤に依存しません。",
+                  "@repo/ui": "Domain は UI に依存しません。",
+                  "next": "Domain は Next.js に依存しません。",
+                  "drizzle-orm": "Domain は ORM に依存しません。",
+                  "pg": "Domain は PostgreSQL driver に依存しません。",
+                  "@neondatabase/serverless": "Domain は PostgreSQL driver に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,db,line,platform,server,ui}/**",
+                      "@repo/{users,attendance,payroll}",
+                      "@repo/{users,attendance,payroll}/{application,infrastructure,delivery}/**",
+                      "**/{contracts,db,line,platform,server,ui}/**",
+                      "**/application/**",
+                      "**/infrastructure/**",
+                      "**/delivery/**",
+                      "next/**",
+                      "drizzle-orm/**"
+                    ],
+                    "message": "Domain は外側の層と技術基盤に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/attendance/src/application/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance": "Attendance 内部では self package root を経由せず、内部の実装を直接参照します。",
+                  "@repo/contracts": "Application は共有 Web contract に依存しません。",
+                  "@repo/db": "Application は具体的な DB 実装に依存しません。",
+                  "@repo/platform": "Application は Platform に依存しません。",
+                  "@repo/server": "Application は Server のアプリケーション実行基盤に依存しません。",
+                  "@repo/ui": "Application は UI に依存しません。",
+                  "next": "Application は Next.js に依存しません。",
+                  "drizzle-orm": "Application は ORM に依存しません。",
+                  "pg": "Application は PostgreSQL driver に依存しません。",
+                  "@neondatabase/serverless": "Application は PostgreSQL driver に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,db,line,platform,server,ui}/**",
+                      "@repo/{users,attendance,payroll}/{infrastructure,delivery}/**",
+                      "**/{db,line,platform,server,ui}/**",
+                      "**/infrastructure/**",
+                      "**/delivery/**",
+                      "next/**",
+                      "drizzle-orm/**"
+                    ],
+                    "message": "Application は共有 contract、具体的な Infrastructure、Platform、Delivery に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/attendance/src/infrastructure/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance": "Attendance 内部では self package root を経由せず、内部の実装を直接参照します。",
+                  "@repo/ui": "Infrastructure は Delivery に依存しません。",
+                  "next": "Infrastructure は Next.js Delivery Adapter に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{users,attendance,payroll}/delivery/**",
+                      "**/delivery/**",
+                      "next/**"
+                    ],
+                    "message": "Infrastructure は Delivery に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/attendance/src/delivery/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance": "Attendance 内部では self package root を経由せず、内部の実装を直接参照します."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/payroll/**",
+                      "**/payroll/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/payroll/src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": "Domain は共有 Web contract に依存しません。",
+                  "@repo/db": "Domain は DB に依存しません。",
+                  "@repo/platform": "Domain は Platform に依存しません。",
+                  "@repo/server": "Domain は Server のアプリケーション実行基盤に依存しません。",
+                  "@repo/ui": "Domain は UI に依存しません。",
+                  "@repo/payroll/infrastructure": "Domain は Infrastructure に依存しません。",
+                  "@repo/payroll/delivery": "Domain は Delivery に依存しません。",
+                  "next": "Domain は Next.js に依存しません。",
+                  "drizzle-orm": "Domain は ORM に依存しません。",
+                  "pg": "Domain は PostgreSQL driver に依存しません。",
+                  "@neondatabase/serverless": "Domain は PostgreSQL driver に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,db,line,platform,server,ui}/**",
+                      "@repo/{users,attendance,payroll}",
+                      "@repo/{users,attendance,payroll}/{application,infrastructure,delivery}/**",
+                      "**/{contracts,db,line,platform,server,ui}/**",
+                      "**/application/**",
+                      "**/infrastructure/**",
+                      "**/delivery/**",
+                      "next/**",
+                      "drizzle-orm/**"
+                    ],
+                    "message": "Domain は外側の層と技術基盤に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/attendance/**",
+                      "**/attendance/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/payroll/src/*.ts",
+        "!packages/payroll/src/*.test.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll": "Payroll 内部では self package root を経由せず、内部の実装を直接参照します。",
+                  "@repo/contracts": "Domain は共有 Web contract に依存しません。",
+                  "@repo/db": "Domain は DB に依存しません。",
+                  "@repo/platform": "Domain は Platform に依存しません。",
+                  "@repo/server": "Domain は Server に依存しません。",
+                  "next": "Domain は Next.js に依存しません。",
+                  "drizzle-orm": "Domain は ORM に依存しません。",
+                  "pg": "Domain は PostgreSQL driver に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,db,platform,server}/**",
+                      "@repo/users/{application,domain,infrastructure,delivery}/**",
+                      "@repo/users",
+                      "**/users/src/**",
+                      "next/**",
+                      "drizzle-orm/**"
+                    ],
+                    "message": "Domain は外側の層と技術基盤に依存しません."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/payroll/src/application/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll": "Payroll 内部では self package root を経由せず、内部の実装を直接参照します。",
+                  "@repo/db": "Application は具体的な DB 実装に依存しません。",
+                  "@repo/contracts": "Application は Web contract に依存しません。",
+                  "@repo/payroll/infrastructure": "Application は Infrastructure に依存しません。",
+                  "@repo/payroll/delivery": "Application は Delivery に依存しません。",
+                  "@repo/platform": "Application は Platform に依存しません。",
+                  "@repo/server": "Application は Server のアプリケーション実行基盤に依存しません。",
+                  "@repo/ui": "Application は UI に依存しません。",
+                  "next": "Application は Next.js に依存しません。",
+                  "drizzle-orm": "Application は ORM に依存しません。",
+                  "pg": "Application は PostgreSQL driver に依存しません。",
+                  "@neondatabase/serverless": "Application は PostgreSQL driver に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{db,line,platform,server,ui}/**",
+                      "@repo/{users,attendance,payroll}/{infrastructure,delivery}/**",
+                      "**/{db,line,platform,server,ui}/**",
+                      "**/infrastructure/**",
+                      "**/delivery/**",
+                      "next/**",
+                      "drizzle-orm/**"
+                    ],
+                    "message": "Application は具体的な Infrastructure、Platform、Delivery に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/attendance/**",
+                      "**/attendance/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/payroll/src/infrastructure/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll": "Payroll 内部では self package root を経由せず、内部の実装を直接参照します。",
+                  "@repo/ui": "Infrastructure は Delivery に依存しません。",
+                  "next": "Infrastructure は Next.js Delivery Adapter に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{users,attendance,payroll}/delivery/**",
+                      "**/delivery/**",
+                      "next/**"
+                    ],
+                    "message": "Infrastructure は Delivery に依存しません。"
+                  },
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/attendance/**",
+                      "**/attendance/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/users/src/index.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/users": "Users root は self package root を経由して循環参照しません。",
+                  "./infrastructure": "Users root は Infrastructure を公開しません。",
+                  "./schema": "Users root は schema を公開しません。"
+                },
+                "patterns": [
+                  {
+                    "group": ["./infrastructure/**", "./schema/**"],
+                    "message": "Users root は Domain と Application の公開境界です。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/server/src/**",
+        "!packages/server/src/cli/production-admin-bootstrap.ts",
+        "!packages/server/src/cli/production-admin-bootstrap-options.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/ui": "Server は表示層に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/ui/**",
+                      "@repo/users/**",
+                      "**/users/src/**"
+                    ],
+                    "message": "Server の業務処理は Users root の read boundary と policy だけを利用します。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/app/**",
+        "apps/web/lib/**",
+        "!apps/web/app/admin/users/\\[userId\\]/payroll/payroll-detail-client.small.test.tsx",
+        "!apps/web/lib/server/users-access.ts",
+        "!apps/web/lib/server/payroll-composition.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll/application": "Web Delivery は Payroll の内部 Application subpath を直接参照しません。",
+                  "@repo/payroll/domain": "Web Delivery は Payroll の内部 Domain subpath を直接参照しません。",
+                  "@repo/payroll/infrastructure": "Web Delivery は Payroll Infrastructure を Composition Root 経由で組み立てます。",
+                  "@repo/payroll/schema": "Web Delivery は Payroll schema を直接参照しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/src/**",
+                      "@repo/payroll",
+                      "@repo/payroll/{application,domain,infrastructure,schema}/**",
+                      "**/payroll/src/**"
+                    ],
+                    "message": "Web は業務モジュールの内部層を Composition Root 以外から直接参照しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/app/admin/users/\\[userId\\]/payroll/payroll-detail-client.small.test.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/lib/server/users-access.ts",
+        "packages/server/src/cli/production-admin-bootstrap.ts",
+        "packages/server/src/cli/production-admin-bootstrap-options.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/ui": "Users composition は共有 UI に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/ui/**",
+                      "@repo/users/schema",
+                      "@repo/users/schema/**",
+                      "**/users/src/schema/**"
+                    ],
+                    "message": "Users schema は DB の schema composition point で組み込みます。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/db/src/**", "!packages/db/src/schema/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": "DB は共有契約に依存しません。",
+                  "@repo/payroll": "DB は業務 Domain に依存しません。",
+                  "@repo/server": "DB は Server に依存しません。",
+                  "@repo/ui": "DB は UI に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,line,server,ui}/**",
+                      "@repo/payroll/{application,domain,infrastructure,delivery}/**",
+                      "@repo/users/**",
+                      "**/users/src/**"
+                    ],
+                    "message": "DB は schema composition point でのみ Users schema を組み込みます。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/db/src/schema/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": "DB は共有契約に依存しません。",
+                  "@repo/payroll": "DB は業務 Domain に依存しません。",
+                  "@repo/server": "DB は Server に依存しません。",
+                  "@repo/ui": "DB は UI に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,line,server,ui}/**",
+                      "@repo/payroll/{application,domain,infrastructure,delivery}/**",
+                      "@repo/users/{application,domain,infrastructure}",
+                      "@repo/users/{application,domain,infrastructure}/**",
+                      "**/users/src/{application,domain,infrastructure}/**"
+                    ],
+                    "message": "DB schema composition は Users Infrastructure を参照しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/payroll/src/delivery/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll": "Payroll 内部では self package root を経由せず、内部の実装を直接参照します."
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/**",
+                      "@repo/attendance/**",
+                      "**/attendance/**"
+                    ],
+                    "message": "別の業務モジュールの内部 subpath に直接依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/payroll/src/test/medium-postgres.ts",
+        "packages/payroll/src/infrastructure/**/*.medium.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/users/src/schema/**",
+        "!packages/users/src/schema/**/*.test.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/users": "Users 内部では self package root を経由せず、内部の実装を直接参照します。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/attendance/src/schema/**",
+        "!packages/attendance/src/schema/**/*.test.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance": "Attendance 内部では self package root を経由せず、内部の実装を直接参照します。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/attendance/src/index.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance": "Attendance root は self package root を経由して循環参照しません。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/payroll/src/schema/**",
+        "packages/payroll/src/contracts/**",
+        "!packages/payroll/src/schema/**/*.test.*",
+        "!packages/payroll/src/contracts/**/*.test.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll": "Payroll 内部では self package root を経由せず、内部の実装を直接参照します。"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+name: Production DB Backup
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: production-db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 15
+    env:
+      PRODUCTION_DATABASE_BACKUP_URL: ${{ secrets.PRODUCTION_DATABASE_BACKUP_URL }}
+      AWS_ACCESS_KEY_ID: ${{ vars.R2_BACKUP_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_BACKUP_SECRET_ACCESS_KEY }}
+      AWS_REGION: auto
+      AWS_DEFAULT_REGION: auto
+      R2_BACKUP_ACCOUNT_ID: ${{ vars.R2_BACKUP_ACCOUNT_ID }}
+      R2_BACKUP_BUCKET: ${{ vars.R2_BACKUP_BUCKET }}
+    steps:
+      - name: Back up production database to R2
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_variables=(
+            PRODUCTION_DATABASE_BACKUP_URL
+            AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY
+            R2_BACKUP_ACCOUNT_ID
+            R2_BACKUP_BUCKET
+          )
+          for variable_name in "${required_variables[@]}"; do
+            if [[ -z "${!variable_name:-}" ]]; then
+              echo "::error::Required configuration ${variable_name} is empty." >&2
+              exit 1
+            fi
+          done
+
+          now_epoch="$(date -u +%s)"
+          timestamp="$(date -u -d "@${now_epoch}" +'%Y%m%dT%H%M%SZ')"
+          utc_date="$(date -u -d "@${now_epoch}" +'%Y/%m/%d')"
+          dump_name="timecard-${timestamp}.dump"
+          dump_path="${RUNNER_TEMP}/${dump_name}"
+          checksum_path="${dump_path}.sha256"
+          object_key="production/${utc_date}/${dump_name}"
+          endpoint="https://${R2_BACKUP_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          postgres_image="docker.io/library/postgres:18-bookworm@sha256:882236b897e39051d2368c5ccc6cda944904723506b2dfc97f2a8f5bc9afa382"
+
+          # cspell:ignore dbname
+          docker run --rm \
+            --env DATABASE_URL="${PRODUCTION_DATABASE_BACKUP_URL}" \
+            "${postgres_image}" \
+            sh -c 'pg_dump --dbname="$DATABASE_URL" --format=custom --no-owner --no-acl' \
+            > "${dump_path}"
+
+          if [[ ! -s "${dump_path}" ]]; then
+            echo "::error::The database dump is empty." >&2
+            exit 1
+          fi
+
+          docker run --rm \
+            --volume "${RUNNER_TEMP}:/backup:ro" \
+            "${postgres_image}" \
+            pg_restore --list "/backup/${dump_name}" \
+            > /dev/null
+
+          (
+            cd "${RUNNER_TEMP}"
+            sha256sum "${dump_name}" > "${checksum_path}"
+          )
+
+          aws s3 cp \
+            "${dump_path}" \
+            "s3://${R2_BACKUP_BUCKET}/${object_key}" \
+            --endpoint-url "${endpoint}"
+          aws s3 cp \
+            "${checksum_path}" \
+            "s3://${R2_BACKUP_BUCKET}/${object_key}.sha256" \
+            --endpoint-url "${endpoint}"
+
+          local_bytes="$(wc -c < "${dump_path}")"
+          remote_bytes="$(aws s3api head-object \
+            --bucket "${R2_BACKUP_BUCKET}" \
+            --key "${object_key}" \
+            --endpoint-url "${endpoint}" \
+            --query ContentLength \
+            --output text)"
+          if [[ "${remote_bytes}" != "${local_bytes}" ]]; then
+            echo "::error::Uploaded dump size does not match the local dump size." >&2
+            exit 1
+          fi
+
+          echo "Backup uploaded: ${object_key} (${local_bytes} bytes)"

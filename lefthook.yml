@@ -1,0 +1,49 @@
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{js,jsx,mjs,cjs,ts,tsx,json,jsonc,css,html,vue,graphql}"
+      run: pnpm exec biome check --linter-enabled=false --no-errors-on-unmatched {staged_files}
+    format-markdown:
+      glob: "**/*.md"
+      run: pnpm exec prettier --check {staged_files}
+    textlint-markdown:
+      glob: "**/*.md"
+      run: pnpm exec textlint {staged_files}
+    lint:
+      glob: "*.{js,jsx,mjs,cjs,ts,tsx,json,jsonc,css,html,vue,graphql}"
+      run: pnpm exec biome lint --error-on-warnings --skip=suspicious/noImportCycles --no-errors-on-unmatched {staged_files}
+    spellcheck:
+      file_types: text
+      run: pnpm exec cspell --no-progress --no-must-find-files {staged_files}
+
+pre-push:
+  commands:
+    dispatch-validation:
+      use_stdin: true
+      run: node scripts/dispatch-pre-push.mjs
+
+pre-push-validation:
+  commands:
+    branch-name:
+      run: node scripts/check-branch-name.mjs
+    typecheck-and-test-small:
+      skip:
+        - ref: develop
+        - ref: main
+      run: pnpm exec turbo run typecheck test:small
+
+    quality:
+      only:
+        - ref: develop
+      run: pnpm quality:affected
+
+    quality-main:
+      only:
+        - ref: main
+      run: pnpm quality
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm lint:commit --edit {1}

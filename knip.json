@@ -1,0 +1,44 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "include": ["files", "exports", "types", "dependencies", "devDependencies"],
+  "ignoreIssues": {
+    "packages/server/src/env.ts": ["exports", "types"],
+    "packages/attendance/src/index.ts": ["exports"],
+    "packages/attendance/src/application/attendance-current-state-read-model.ts": [
+      "types"
+    ]
+  },
+  "ignoreDependencies": [
+    "@commitlint/cli",
+    "textlint-rule-ja-space-around-code",
+    "textlint-rule-ja-space-between-half-and-full-width"
+  ],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/deploy-vercel-preview.mjs!",
+        "scripts/deploy-vercel-production.mjs!",
+        "scripts/dev-web-local.mjs!",
+        "scripts/run-quality.mjs!"
+      ]
+    },
+    "apps/e2e": {
+      "entry": ["tests/**/*.test.ts"],
+      "ignoreDependencies": ["web"]
+    },
+    "packages/*": {
+      "includeEntryExports": true
+    },
+    "packages/db": {
+      "entry": ["src/migrate.ts!"],
+      "includeEntryExports": true
+    },
+    "packages/server": {
+      "entry": [
+        "src/cli/rebuild-attendance-current-state-projection.ts!",
+        "src/cli/production-admin-bootstrap.ts!"
+      ],
+      "includeEntryExports": true
+    }
+  }
+}

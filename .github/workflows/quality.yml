@@ -1,0 +1,187 @@
+name: Quality
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  quality:
+    outputs:
+      mode: ${{ steps.quality-mode.outputs.mode }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm and Node.js
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          runtime: node@24.21.0
+          cache: true
+          install: false
+
+      - name: Restore Turborepo cache
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      - name: Restore Next.js build cache
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: apps/web/.next/cache
+          key: ${{ runner.os }}-${{ runner.arch }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate Lefthook configuration
+        run: pnpm exec lefthook validate
+
+      - name: Lint develop commit messages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: node scripts/lint-push-commits.mjs
+
+      - name: Resolve Quality mode for Preview
+        id: quality-mode
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: echo "mode=$(node scripts/quality-affected.mjs --mode)" >> "$GITHUB_OUTPUT"
+        env:
+          TURBO_SCM_BASE: ${{ github.event.before }}
+          TURBO_SCM_HEAD: ${{ github.sha }}
+
+      - name: Install Playwright Chromium Headless Shell
+        if: >
+          github.event_name != 'push' ||
+          github.ref != 'refs/heads/develop' ||
+          steps.quality-mode.outputs.mode != 'static-only'
+        run: pnpm --filter e2e exec playwright install --with-deps --only-shell chromium
+
+      - name: Quality
+        if: github.event_name != 'push' || github.ref != 'refs/heads/develop'
+        run: pnpm quality
+
+      - name: Quality for develop
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: pnpm quality:affected
+        env:
+          TURBO_SCM_BASE: ${{ github.event.before }}
+          TURBO_SCM_HEAD: ${{ github.sha }}
+
+  deploy-preview:
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && needs.quality.result == 'success' && needs.quality.outputs.mode != 'static-only'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: develop-preview-deploy
+      cancel-in-progress: false
+      queue: max
+
+    steps:
+      - name: Checkout verified revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Recheck current develop head
+        id: develop-head
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin develop:refs/remotes/origin/develop
+          current_sha="$(git rev-parse refs/remotes/origin/develop)"
+
+          if [[ "${current_sha}" == "${GITHUB_SHA}" ]]; then
+            echo "deploy=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "deploy=false" >> "${GITHUB_OUTPUT}"
+            echo "Skipping superseded run: verified SHA ${GITHUB_SHA}, current develop SHA ${current_sha}."
+          fi
+
+      - name: Setup pnpm and Node.js
+        if: steps.develop-head.outputs.deploy == 'true'
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          runtime: node@24.21.0
+          install: false
+
+      - name: Deploy Vercel Preview
+        if: steps.develop-head.outputs.deploy == 'true'
+        run: node scripts/deploy-vercel-preview.mjs
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPOSITORY_ID: ${{ github.repository_id }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+
+  deploy-production:
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.quality.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: main-production-deploy
+      cancel-in-progress: false
+      queue: max
+
+    steps:
+      - name: Checkout verified revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Recheck current main head
+        id: main-head
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          current_sha="$(git rev-parse refs/remotes/origin/main)"
+
+          if [[ "${current_sha}" == "${GITHUB_SHA}" ]]; then
+            echo "deploy=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "deploy=false" >> "${GITHUB_OUTPUT}"
+            echo "Skipping superseded run: verified SHA ${GITHUB_SHA}, current main SHA ${current_sha}."
+          fi
+
+      - name: Setup pnpm and Node.js
+        if: steps.main-head.outputs.deploy == 'true'
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          runtime: node@24.21.0
+          install: false
+
+      - name: Deploy Vercel Production
+        if: steps.main-head.outputs.deploy == 'true'
+        run: node scripts/deploy-vercel-production.mjs
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPOSITORY_ID: ${{ github.repository_id }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}

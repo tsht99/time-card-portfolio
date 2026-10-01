@@ -1,0 +1,10 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "attendance.ts": "attendance.small.test.ts, attendance-aggregate.small.test.ts, attendance-aggregate-property.small.test.ts",
+    "monthly-payroll-summary.ts": "monthly-payroll-summary.small.test.ts, monthly-payroll-summary-property.small.test.ts",
+    "*.ts": "${capture}.small.test.ts, ${capture}.medium.test.ts",
+    "*.tsx": "${capture}.small.test.tsx, ${capture}.medium.test.tsx"
+  }
+}

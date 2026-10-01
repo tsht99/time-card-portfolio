@@ -1,0 +1,27 @@
+{
+  "name": "e2e",
+  "private": true,
+  "scripts": {
+    "install:chromium": "playwright install chromium",
+    "test:e2e": "playwright test",
+    "test:medium": "E2E_WEB_RUNTIME=production playwright test \".*\\.medium\\.test\\.ts$\"",
+    "test:medium:dev": "E2E_WEB_RUNTIME=development playwright test \".*\\.medium\\.test\\.ts$\"",
+    "typecheck": "tsc --noEmit",
+    "webserver": "pnpm exec turbo run build --filter=web... && tsx scripts/e2e-webserver.ts",
+    "webserver:dev": "E2E_WEB_RUNTIME=development tsx scripts/e2e-webserver.ts"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "@testcontainers/postgresql": "catalog:",
+    "@repo/db": "workspace:*",
+    "@repo/platform": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "web": "workspace:*"
+  }
+}

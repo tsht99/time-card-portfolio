@@ -1,0 +1,51 @@
+{
+  "name": "@repo/payroll",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./src/schema/index.ts",
+      "development": "./src/schema/index.ts",
+      "default": "./dist/schema/index.js"
+    },
+    "./contracts": {
+      "types": "./src/contracts/index.ts",
+      "development": "./src/contracts/index.ts",
+      "default": "./dist/contracts/index.js"
+    },
+    "./infrastructure": {
+      "types": "./src/infrastructure/index.ts",
+      "development": "./src/infrastructure/index.ts",
+      "default": "./dist/infrastructure/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node --conditions=development --import tsx --test \"src/**/*.test.ts\"",
+    "test:small": "node --conditions=development --import tsx --test \"src/**/*.small.test.ts\"",
+    "test:medium": "node --conditions=development --import tsx --test --test-global-setup ../../packages/db/src/test/medium-postgres-global-setup.ts --test-concurrency=1 \"src/**/*.medium.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "fast-check": "4.10.2",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "pg": "catalog:",
+    "@types/pg": "catalog:"
+  },
+  "dependencies": {
+    "@holiday-jp/holiday_jp": "2.5.2",
+    "@repo/users": "workspace:*",
+    "@repo/attendance": "workspace:*",
+    "@repo/platform": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:"
+  }
+}
