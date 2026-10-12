@@ -1,0 +1,31 @@
+{
+  "name": "@repo/tutorial-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "remotion studio src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test:small": "node --import tsx --test \"src/**/*.small.test.ts\"",
+    "compositions": "remotion compositions src/index.ts",
+    "render": "remotion render src/index.ts",
+    "audio:setup": "uv sync --project python --frozen && uv run --project python python/download_model.py --output public/models/supertonic-3",
+    "audio:generate": "tsx scripts/generate-audio.ts",
+    "record:scenarios": "pnpm exec playwright test --config=playwright.recordings.config.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.534",
+    "remotion": "4.0.534",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:frontend-tooling",
+    "@playwright/test": "catalog:",
+    "@repo/db": "workspace:*",
+    "web": "workspace:*",
+    "drizzle-orm": "catalog:"
+  }
+}

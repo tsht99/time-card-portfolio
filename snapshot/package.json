@@ -1,0 +1,53 @@
+{
+  "name": "workspace-root",
+  "private": true,
+  "type": "module",
+  "version": "2.0.0-rc.5",
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "pnpm@12.12.0",
+  "scripts": {
+    "build": "turbo run build",
+    "build:verify": "node scripts/quality/build-verify.mjs",
+    "lint": "node scripts/quality/esm-policy.mjs && biome lint . --error-on-warnings && turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test:small": "node --test \"scripts/**/*.small.test.mjs\" && turbo run test:small",
+    "test:small:scripts": "node --test \"scripts/**/*.small.test.mjs\"",
+    "test:medium": "node --test \"scripts/**/*.medium.test.mjs\" && node scripts/quality/run-medium-tests.mjs",
+    "test:medium:scripts": "node --test \"scripts/**/*.medium.test.mjs\"",
+    "dev:web": "pnpm --filter web dev",
+    "dev:help": "node scripts/web/dev-help.mjs",
+    "storybook": "pnpm --filter web storybook",
+    "build:storybook": "pnpm --filter web build-storybook",
+    "dev:web:liff": "node scripts/web/dev-web-local.mjs",
+    "build:web": "turbo run build --filter=web",
+    "publish:help-media": "node scripts/web/publish-help-media.mjs",
+    "format": "biome check --write --linter-enabled=false . && textlint --ignore-path .gitignore --fix \"**/*.md\" && prettier --write \"**/*.md\"",
+    "format:check": "biome check --linter-enabled=false . && textlint --ignore-path .gitignore \"**/*.md\" && prettier --check \"**/*.md\"",
+    "spellcheck": "cspell --no-progress .",
+    "knip": "knip",
+    "knip:production-exports": "knip --production --exclude files,dependencies",
+    "quality": "node scripts/quality/run-quality.mjs",
+    "quality:affected": "node scripts/quality/quality-affected.mjs",
+    "lint:commit": "node scripts/git/lint-commit-message.mjs",
+    "db:migrate": "pnpm --filter @repo/db migrate"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "cspell": "10.3.6",
+    "knip": "6.41.0",
+    "lefthook": "2.2.1",
+    "prettier": "3.9.10",
+    "textlint": "15.8.0",
+    "textlint-rule-ja-space-around-code": "3.0.3",
+    "textlint-rule-ja-space-between-half-and-full-width": "3.0.3",
+    "turbo": "2.11.7"
+  },
+  "dependencies": {
+    "@vercel/sdk": "1.28.43",
+    "aws4fetch": "1.0.20"
+  }
+}

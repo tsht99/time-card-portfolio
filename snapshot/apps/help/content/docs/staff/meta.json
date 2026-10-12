@@ -1,0 +1,4 @@
+{
+  "title": "スタッフ向け",
+  "pages": ["index", "clock-in", "clock-out", "history", "missed-records"]
+}

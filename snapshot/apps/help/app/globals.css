@@ -1,0 +1,116 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+/* Keep the guide in the same centered, phone-width frame at every viewport. */
+#nd-docs-layout {
+  max-width: 448px;
+  min-width: 0;
+  margin-inline: auto;
+  --fd-header-height: 3.5rem;
+  --fd-sidebar-width: 0px;
+  --fd-toc-width: 0px;
+}
+
+#nd-subnav {
+  display: flex;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border-color: var(--color-fd-border);
+}
+
+#nd-subnav > .flex-1 {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+#nd-subnav [aria-controls="nd-sidebar-mobile"] {
+  display: none;
+}
+
+.help-navigation {
+  position: static;
+  width: max-content;
+  max-width: 100%;
+}
+
+.help-navigation > summary,
+.help-navigation nav summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.help-navigation > summary::after,
+.help-navigation nav summary::after {
+  content: "▾";
+}
+
+.help-navigation details[open] > summary::after {
+  content: "▴";
+}
+
+.help-navigation > summary::-webkit-details-marker,
+.help-navigation nav summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-navigation nav {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  display: grid;
+  width: min(20rem, calc(100vw - 2rem));
+  max-height: min(70dvh, 36rem);
+  gap: 0.25rem;
+  overflow-y: auto;
+  transform: translateX(-50%);
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: var(--color-fd-background);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+
+.help-navigation nav a,
+.help-navigation nav p,
+.help-navigation nav summary {
+  display: block;
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+}
+
+.help-navigation nav a {
+  border-radius: 0.375rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.help-navigation nav a:hover,
+.help-navigation nav summary:hover {
+  background: var(--color-fd-accent);
+}
+
+.help-navigation nav details > div {
+  display: grid;
+  gap: 0.125rem;
+  padding-inline-start: 0.75rem;
+}
+
+#nd-page {
+  padding: 1.5rem 1rem;
+}

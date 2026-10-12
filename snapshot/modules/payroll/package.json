@@ -1,0 +1,44 @@
+{
+  "name": "@repo/payroll",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./schema": {
+      "types": "./src/schema/index.ts",
+      "development": "./src/schema/index.ts",
+      "default": "./dist/schema/index.js"
+    },
+    "./infrastructure": {
+      "types": "./src/infrastructure/index.ts",
+      "development": "./src/infrastructure/index.ts",
+      "default": "./dist/infrastructure/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "typecheck": "tsc --noEmit",
+    "test:small": "node --conditions=development --import tsx --test \"src/**/*.small.test.ts\"",
+    "test:medium": "medium-test \"src/**/*.medium.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "fast-check": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "@repo/medium-test-runner": "workspace:*",
+    "@repo/test-support": "workspace:*"
+  },
+  "dependencies": {
+    "@holiday-jp/holiday_jp": "2.5.2",
+    "@repo/users": "workspace:*",
+    "@repo/attendance": "workspace:*",
+    "@repo/postgres": "workspace:*",
+    "drizzle-orm": "catalog:"
+  }
+}

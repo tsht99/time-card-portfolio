@@ -1,0 +1,12 @@
+{
+  "title": "管理者向け",
+  "pages": [
+    "index",
+    "users",
+    "attendance",
+    "create-attendance",
+    "correct-or-cancel-attendance",
+    "hourly-wages",
+    "payroll-estimate"
+  ]
+}

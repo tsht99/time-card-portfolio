@@ -1,0 +1,23 @@
+{
+  "name": "@repo/attendance-projection-rebuild",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "rebuild:local": "node --conditions=development --env-file-if-exists=../../.env.local --import tsx ./src/cli/rebuild-attendance-current-state-projection.ts local",
+    "rebuild:preview": "node --conditions=development --import tsx ./src/cli/rebuild-attendance-current-state-projection.ts preview",
+    "rebuild:production": "node --conditions=development --import tsx ./src/cli/rebuild-attendance-current-state-projection.ts production",
+    "test:small": "node --conditions=development --import tsx --test \"src/**/*.small.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/attendance": "workspace:*",
+    "@repo/db": "workspace:*",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@repo/test-support",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./medium-postgres": {
+      "types": "./src/medium-postgres.ts",
+      "development": "./src/medium-postgres.ts",
+      "default": "./dist/medium-postgres.js"
+    }
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "test:small": "node --import tsx --test src/**/*.small.test.ts",
+    "test:medium": "node --import tsx --test --test-concurrency=1 src/**/*.medium.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@testcontainers/postgresql": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

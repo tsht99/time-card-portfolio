@@ -1,0 +1,43 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "include": ["files", "exports", "types", "dependencies", "devDependencies"],
+  "ignoreIssues": {
+    "modules/attendance/src/index.ts": ["exports", "types"],
+    "modules/attendance/src/application/ports/attendance-current-state-read-model.ts": [
+      "types"
+    ],
+    "modules/users/src/index.ts": ["exports", "types"],
+    "packages/ui/src/**/*.stories.@(ts|tsx)": ["exports"]
+  },
+  "ignoreDependencies": ["@commitlint/cli"],
+  "ignoreWorkspaces": ["packages/test-support!"],
+  "workspaces": {
+    "tools/help-screenshots": {
+      "entry": ["playwright.screenshots.config.ts!", "scenarios/**/*.ts!"]
+    },
+    "tools/tutorial-video": {
+      "entry": [
+        "recordings/**/*.recording.ts!",
+        "remotion.config.ts!",
+        "src/index.ts!"
+      ]
+    },
+    "packages/*": {
+      "includeEntryExports": true
+    },
+    "modules/*": {
+      "includeEntryExports": true
+    },
+    "packages/db": {
+      "entry": ["src/migrate.ts!"],
+      "includeEntryExports": true
+    },
+    "packages/ui": {
+      "entry": ["src/**/*.stories.@(ts|tsx)!"]
+    },
+    "tools/attendance-projection-rebuild": {
+      "entry": ["src/cli/rebuild-attendance-current-state-projection.ts!"],
+      "includeEntryExports": true
+    }
+  }
+}

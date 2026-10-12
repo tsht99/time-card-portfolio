@@ -1,0 +1,107 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "overrides": [
+    {
+      "includes": [
+        "modules/payroll/src/test/medium-postgres.ts",
+        "modules/payroll/src/infrastructure/**/*.medium.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "modules/users/src/schema/**",
+        "!modules/users/src/schema/**/*.test.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/users": "Users 内部では self package root を経由せず、内部の実装を直接参照します。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "modules/attendance/src/schema/**",
+        "!modules/attendance/src/schema/**/*.test.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance": "Attendance 内部では self package root を経由せず、内部の実装を直接参照します。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["modules/attendance/src/index.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance": "Attendance root は self package root を経由して循環参照しません。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "modules/payroll/src/schema/**",
+        "!modules/payroll/src/schema/**/*.test.*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll": "Payroll 内部では self package root を経由せず、内部の実装を直接参照します。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/lib/server/attendance-authorization.medium.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    }
+  ]
+}

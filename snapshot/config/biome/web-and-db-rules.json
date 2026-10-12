@@ -1,0 +1,206 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "overrides": [
+    {
+      "includes": [
+        "apps/web/app/**",
+        "apps/web/lib/**",
+        "!apps/web/app/admin/users/\\[userId\\]/hourly-wage-rules/_components/hourly-wage-rules-client.tsx",
+        "!apps/web/lib/server/users-composition.ts",
+        "!apps/web/lib/server/payroll-composition.ts",
+        "!apps/web/lib/server/attendance-composition.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll/application": "Web Delivery は Payroll の内部 Application subpath を直接参照しません。",
+                  "@repo/payroll/domain": "Web Delivery は Payroll の内部 Domain subpath を直接参照しません。",
+                  "@repo/payroll/infrastructure": "Web Delivery は Payroll Infrastructure を Composition Root 経由で組み立てます。",
+                  "@repo/payroll/schema": "Web Delivery は Payroll schema を直接参照しません。",
+                  "@repo/attendance/application": "Web Delivery は Attendance の内部 Application subpath を直接参照しません。",
+                  "@repo/attendance/domain": "Web Delivery は Attendance の内部 Domain subpath を直接参照しません。",
+                  "@repo/attendance/infrastructure": "Web Delivery は Attendance Infrastructure を Composition Root 経由で組み立てます。",
+                  "@repo/attendance/schema": "Web Delivery は Attendance schema を直接参照しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/src/**",
+                      "@repo/payroll",
+                      "@repo/payroll/{application,domain,infrastructure,schema}/**",
+                      "**/payroll/src/**",
+                      "@repo/attendance/{application,domain,infrastructure,schema}/**",
+                      "**/attendance/src/**"
+                    ],
+                    "message": "Web は業務モジュールの内部層を Composition Root 以外から直接参照しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/app/admin/users/\\[userId\\]/hourly-wage-rules/_components/hourly-wage-rules-client.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/payroll/application": "Web Delivery は Payroll の内部 Application subpath を直接参照しません。",
+                  "@repo/payroll/domain": "Web Delivery は Payroll の内部 Domain subpath を直接参照しません。",
+                  "@repo/payroll/infrastructure": "Web Delivery は Payroll Infrastructure を Composition Root 経由で組み立てます。",
+                  "@repo/payroll/schema": "Web Delivery は Payroll schema を直接参照しません。",
+                  "@repo/attendance/application": "Web Delivery は Attendance の内部 Application subpath を直接参照しません。",
+                  "@repo/attendance/domain": "Web Delivery は Attendance の内部 Domain subpath を直接参照しません。",
+                  "@repo/attendance/infrastructure": "Web Delivery は Attendance Infrastructure を Composition Root 経由で組み立てます。",
+                  "@repo/attendance/schema": "Web Delivery は Attendance schema を直接参照しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/users/**",
+                      "**/users/src/**",
+                      "@repo/payroll/{application,domain,infrastructure,schema}/**",
+                      "**/payroll/src/**",
+                      "@repo/attendance/{application,domain,infrastructure,schema}/**",
+                      "**/attendance/src/**"
+                    ],
+                    "message": "Web は業務モジュールの内部層を Composition Root 以外から直接参照しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/lib/server/attendance-composition.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/attendance/application": "Attendance Composition Root は Application の内部 subpath を直接参照しません。",
+                  "@repo/attendance/domain": "Attendance Composition Root は Domain の内部 subpath を直接参照しません。",
+                  "@repo/attendance/schema": "Attendance schema は DB の schema composition point で組み込みます。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/attendance/{application,domain,schema}/**",
+                      "**/attendance/src/{application,domain,schema}/**"
+                    ],
+                    "message": "Attendance Composition Root は Infrastructure のみを組み立てます。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/lib/server/users-composition.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/ui": "Users composition は共有 UI に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/ui/**",
+                      "@repo/users/schema",
+                      "@repo/users/schema/**",
+                      "**/users/src/schema/**"
+                    ],
+                    "message": "Users schema は DB の schema composition point で組み込みます。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/db/src/**", "!packages/db/src/schema.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": "DB は共有契約に依存しません。",
+                  "@repo/payroll": "DB は業務 Domain に依存しません。",
+                  "@repo/ui": "DB は UI に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,ui}/**",
+                      "@repo/payroll/{application,domain,infrastructure}/**",
+                      "@repo/users/**",
+                      "**/users/src/**"
+                    ],
+                    "message": "DB は schema composition point でのみ Users schema を組み込みます。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/db/src/schema.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": "DB は共有契約に依存しません。",
+                  "@repo/payroll": "DB は業務 Domain に依存しません。",
+                  "@repo/ui": "DB は UI に依存しません。"
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/{contracts,ui}/**",
+                      "@repo/payroll/{application,domain,infrastructure}/**",
+                      "@repo/users/{application,domain,infrastructure}",
+                      "@repo/users/{application,domain,infrastructure}/**",
+                      "**/users/src/{application,domain,infrastructure}/**"
+                    ],
+                    "message": "DB schema composition は Users Infrastructure を参照しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

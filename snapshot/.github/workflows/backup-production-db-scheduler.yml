@@ -1,0 +1,20 @@
+name: Production DB Backup Scheduler
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+      timezone: Asia/Tokyo
+
+permissions:
+  actions: write
+  contents: none
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Dispatch production backup from main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh api "repos/${GH_REPO}/actions/workflows/backup-production-db.yml/dispatches" --method POST --field ref=main

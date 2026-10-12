@@ -1,0 +1,17 @@
+{
+  "name": "@repo/help-screenshots",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "record": "node scripts/record-screenshots.ts",
+    "test:small": "node --test \"**/*.small.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@repo/db": "workspace:*",
+    "web": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:frontend-tooling"
+  }
+}

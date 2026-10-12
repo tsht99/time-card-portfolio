@@ -1,0 +1,276 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "overrides": [
+    {
+      "includes": ["**/public/*.svg"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "modules/payroll/**",
+        "!modules/payroll/src/schema/hourly-wage-rules.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "Domain は契約を定義する層に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/db": {
+                    "message": "Domain は永続化の詳細に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/postgres": {
+                    "message": "Domain は共通技術基盤に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/ui": {
+                    "message": "Domain は表示層に依存せず、ドメインモデルを独立して保ちます。"
+                  },
+                  "@repo/users/infrastructure": {
+                    "message": "Payroll は Users Infrastructure を直接参照しません。"
+                  },
+                  "@repo/users/schema": {
+                    "message": "Payroll は Users schema を直接参照しません。"
+                  },
+                  "@repo/payroll/infrastructure": {
+                    "message": "Domain は Infrastructure に依存しません。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/db/**",
+                      "@repo/postgres/**",
+                      "@repo/ui/**",
+                      "**/postgres/**",
+                      "@repo/users/{application,domain,infrastructure}/**",
+                      "@repo/users",
+                      "**/users/src/**"
+                    ],
+                    "message": "Domain は他の workspace package の subpath に依存せず、ドメインモデルを独立して保ちます。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["modules/attendance/src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/db": {
+                    "message": "Attendance Domain は DB に依存しません。"
+                  },
+                  "@repo/postgres": {
+                    "message": "Attendance Domain は PostgreSQL 接続 package に依存しません。"
+                  },
+                  "next": {
+                    "message": "Attendance Domain は Next.js に依存しません。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/attendance/application/**",
+                      "@repo/attendance/infrastructure/**",
+                      "@repo/attendance/schema",
+                      "@repo/users/**",
+                      "@repo/db/**",
+                      "@repo/postgres/**",
+                      "next/**"
+                    ],
+                    "message": "Attendance Domain は内側の Domain に依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/postgres/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "PostgreSQL 接続 package は業務知識と上位層に依存しません。"
+                  },
+                  "@repo/db": {
+                    "message": "PostgreSQL 接続 package は業務 schema を所有する DB package に依存しません。"
+                  },
+                  "@repo/ui": {
+                    "message": "PostgreSQL 接続 package は表示層に依存しません。"
+                  },
+                  "@repo/users": {
+                    "message": "PostgreSQL 接続 package は業務モジュールに依存しません。"
+                  },
+                  "@repo/attendance": {
+                    "message": "PostgreSQL 接続 package は業務モジュールに依存しません。"
+                  },
+                  "@repo/payroll": {
+                    "message": "PostgreSQL 接続 package は業務モジュールに依存しません。"
+                  },
+                  "web": {
+                    "message": "PostgreSQL 接続 package は Next.js Delivery Adapter に依存しません。"
+                  },
+                  "next": {
+                    "message": "PostgreSQL 接続 package は Next.js Delivery Adapter に依存しません。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/db/**",
+                      "@repo/payroll/**",
+                      "@repo/ui/**",
+                      "@repo/users/**",
+                      "@repo/attendance/**",
+                      "**/{contracts,db,domain,line,server,ui,users,attendance,payroll}/**",
+                      "**/web/**",
+                      "web/**",
+                      "next/**"
+                    ],
+                    "message": "PostgreSQL 接続 package は業務 package と上位層の subpath に依存しません。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/db/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "DB は契約層に依存せず、永続化スキーマとデータアクセスを担います。"
+                  },
+                  "@repo/payroll": {
+                    "message": "DB はドメイン層に依存せず、永続化スキーマとデータアクセスを担います。"
+                  },
+                  "@repo/ui": {
+                    "message": "DB は表示層に依存せず、永続化スキーマとデータアクセスを担います。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/payroll/**",
+                      "@repo/ui/**"
+                    ],
+                    "message": "DB は他の workspace package の subpath に依存せず、永続化スキーマとデータアクセスを担います。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/ui/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/contracts": {
+                    "message": "UI package は契約層に依存せず、再利用可能な表示部品を担います。"
+                  },
+                  "@repo/db": {
+                    "message": "UI package は永続化層に依存せず、再利用可能な表示部品を担います。"
+                  },
+                  "@repo/payroll": {
+                    "message": "UI package はドメイン層に依存せず、再利用可能な表示部品を担います。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/contracts/**",
+                      "@repo/db/**",
+                      "@repo/payroll/**",
+                      "@repo/users/**",
+                      "**/users/src/**"
+                    ],
+                    "message": "UI package は他の workspace package の subpath に依存せず、再利用可能な表示部品を担います。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/contracts/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "@repo/db": {
+                    "message": "Contracts は永続化層に依存せず、共有契約を定義します。"
+                  },
+                  "@repo/ui": {
+                    "message": "Contracts は表示層に依存せず、共有契約を定義します。"
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "@repo/db/**",
+                      "@repo/ui/**",
+                      "@repo/attendance/**",
+                      "@repo/payroll/*",
+                      "@repo/payroll/*/**",
+                      "@repo/users/**",
+                      "**/users/src/**",
+                      "**/attendance/src/**",
+                      "**/payroll/src/**"
+                    ],
+                    "message": "Contracts は他の workspace package の subpath に依存せず、共有契約を定義します。"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

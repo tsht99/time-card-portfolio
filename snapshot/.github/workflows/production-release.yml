@@ -1,0 +1,149 @@
+name: Production Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout exact pushed revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup pnpm and Node.js
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          runtime: node@24.21.0
+          cache: true
+          install: false
+
+      - name: Setup Python for migration validation
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14.8"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate Lefthook configuration
+        run: pnpm exec lefthook validate
+
+      - name: Install Playwright Chromium Headless Shell
+        run: pnpm --filter web exec playwright install --with-deps --only-shell chromium
+
+      - name: Quality
+        run: pnpm quality
+        env:
+          NEXT_PUBLIC_HELP_URL: https://help.example.test
+
+  deploy-production:
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.quality.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: main-production-deploy
+      cancel-in-progress: false
+      queue: max
+
+    steps:
+      - name: Checkout verified revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Recheck current main head
+        id: main-head
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          current_sha="$(git rev-parse refs/remotes/origin/main)"
+
+          if [[ "${current_sha}" == "${GITHUB_SHA}" ]]; then
+            echo "deploy=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "deploy=false" >> "${GITHUB_OUTPUT}"
+            echo "Skipping superseded run: verified SHA ${GITHUB_SHA}, current main SHA ${current_sha}."
+          fi
+
+      - name: Setup pnpm and Node.js
+        if: steps.main-head.outputs.deploy == 'true'
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          runtime: node@24.21.0
+          install: false
+
+      - name: Install deployment dependencies
+        if: steps.main-head.outputs.deploy == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy Vercel Production
+        if: steps.main-head.outputs.deploy == 'true'
+        run: node scripts/web/deploy-vercel-production.mjs
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPOSITORY_ID: ${{ github.repository_id }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+
+
+  deploy-help-production:
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.quality.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: help-production-deploy
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - name: Checkout verified revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+      - name: Recheck current main head
+        id: main-head
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          current_sha="$(git rev-parse refs/remotes/origin/main)"
+          if [[ "${current_sha}" == "${GITHUB_SHA}" ]]; then
+            echo "deploy=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "deploy=false" >> "${GITHUB_OUTPUT}"
+            echo "Skipping superseded run: verified SHA ${GITHUB_SHA}, current main SHA ${current_sha}."
+          fi
+      - name: Setup pnpm and Node.js
+        if: steps.main-head.outputs.deploy == 'true'
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          runtime: node@24.21.0
+          install: false
+      - name: Install deployment dependencies
+        if: steps.main-head.outputs.deploy == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Deploy Help Vercel Production
+        if: steps.main-head.outputs.deploy == 'true'
+        run: node scripts/web/deploy-help-production.mjs
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REPOSITORY_ID: ${{ github.repository_id }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_HELP_PROJECT_ID: ${{ vars.VERCEL_HELP_PROJECT_ID }}

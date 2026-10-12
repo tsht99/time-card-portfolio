@@ -1,0 +1,44 @@
+name: Daily Quality
+
+on:
+  schedule:
+    - cron: "30 19 * * 5"
+  workflow_dispatch:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout latest develop
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: develop
+
+      - name: Setup pnpm and Node.js
+        uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+        with:
+          runtime: node@24.21.0
+          cache: true
+          install: false
+
+      - name: Setup Python for migration validation
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14.8"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate Lefthook configuration
+        run: pnpm exec lefthook validate
+
+      - name: Install Playwright Chromium Headless Shell
+        run: pnpm --filter web exec playwright install --with-deps --only-shell chromium
+
+      - name: Quality
+        run: pnpm quality
+        env:
+          NEXT_PUBLIC_HELP_URL: https://help.example.test

@@ -1,0 +1,60 @@
+# cspell:ignore njsproj ntvs venv
+# NOTE: textlint も参照するため、先頭の / は付けず、ディレクトリ除外の末尾は /** にする。
+
+.DS_Store
+
+# Dependencies
+.pnpm-store/**
+node_modules
+**/dist/**
+**/.next/**
+**/.source/**
+**/next-env.d.ts
+**/*.tsbuildinfo
+storybook-static/
+**/.turbo/**
+**/playwright-report/**
+**/test-results/**
+
+# Web-specific generated files
+apps/web/coverage/**
+apps/web/.vercel/**
+apps/web/out/**
+apps/web/build/**
+apps/web/.web-test/**
+
+# Tutorial video source media, TTS assets, render output, and Python runtime
+tools/tutorial-video/public/audio/**
+tools/tutorial-video/public/models/**
+tools/tutorial-video/public/recordings/**
+tools/tutorial-video/out/**
+tools/tutorial-video/.venv/**
+tools/tutorial-video/python/.venv/**
+tools/tutorial-video/python/.cache/**
+
+# Generated help screenshots
+apps/help/public/images/generated/**
+
+# Environment files
+.env*
+!.env.example
+!.env.*.example
+!.env.test
+!.env.*.test
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+**/.pnpm-debug.log*
+
+# Editor directories and files
+.idea
+*.pem
+# .vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
